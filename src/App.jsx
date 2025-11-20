@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import POS from './pages/POS';
@@ -8,26 +8,23 @@ import Sales from './pages/Sales';
 import Customers from './pages/Customers';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import { LanguageProvider } from './context/LanguageContext';
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/*" element={
-          <Layout>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/pos" element={<POS />} />
-              <Route path="/inventory" element={<Inventory />} />
-              <Route path="/sales" element={<Sales />} />
-              <Route path="/customers" element={<Customers />} />
-              <Route path="/settings" element={<Settings />} />
-            </Routes>
-          </Layout>
-        } />
-      </Routes>
-    </Router>
+    <LanguageProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/pos" element={<Layout><POS /></Layout>} />
+          <Route path="/inventory" element={<Layout><Inventory /></Layout>} />
+          <Route path="/sales" element={<Layout><Sales /></Layout>} />
+          <Route path="/customers" element={<Layout><Customers /></Layout>} />
+          <Route path="/settings" element={<Layout><Settings /></Layout>} />
+        </Routes>
+      </Router>
+    </LanguageProvider>
   );
 }
 

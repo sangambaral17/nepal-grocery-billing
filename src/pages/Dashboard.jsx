@@ -39,6 +39,9 @@ const Dashboard = () => {
     const products = useLiveQuery(() => db.products.toArray());
     const sales = useLiveQuery(() => db.sales.toArray());
 
+    const settings = useLiveQuery(() => db.settings.toArray());
+    const ownerName = settings?.find(s => s.key === 'ownerName')?.value || 'Store Owner';
+
     useEffect(() => {
         if (products && sales) {
             const today = new Date().toDateString();
@@ -62,7 +65,7 @@ const Dashboard = () => {
             <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1000&auto=format&fit=crop')] opacity-20 bg-cover bg-center mix-blend-overlay"></div>
                 <div className="relative p-8 md:p-10">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome Back, Sangam! 👋</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome Back, {ownerName}! 👋</h1>
                     <p className="text-indigo-100 text-lg max-w-xl">Here's what's happening in your store today. You have {stats.todaySales > 0 ? 'made some great sales!' : 'no sales yet. Let\'s get started!'}</p>
                 </div>
             </div>

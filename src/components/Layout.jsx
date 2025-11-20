@@ -1,36 +1,73 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { LayoutDashboard, ShoppingCart, Package, Settings, History, Users } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Settings, History, Users, Globe } from 'lucide-react';
 import { db } from '../db';
+import { useLanguage } from '../context/LanguageContext';
+
+// Import Backgrounds
+import dashboardBg from '../assets/bg/dashboard.png';
+import posBg from '../assets/bg/pos.png';
+import inventoryBg from '../assets/bg/inventory.png';
+import customersBg from '../assets/bg/customers.png';
+import salesBg from '../assets/bg/sales.png';
+import settingsBg from '../assets/bg/settings.png';
 
 const Layout = ({ children }) => {
     const location = useLocation();
+    const { t, language, toggleLanguage } = useLanguage();
 
     const settings = useLiveQuery(() => db.settings.toArray());
-    const ownerName = settings?.find(s => s.key === 'ownerName')?.value || 'Store Admin';
+    const ownerName = settings?.find(s => s.key === 'ownerName')?.value || 'Admin';
+    const storeName = settings?.find(s => s.key === 'storeName')?.value || 'Pasal POS';
 
     const navItems = [
-        { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
-        { icon: ShoppingCart, label: 'POS (Billing)', path: '/pos' },
-        { icon: Package, label: 'Inventory', path: '/inventory' },
-        { icon: Users, label: 'Customers', path: '/customers' },
-        { icon: History, label: 'Sales History', path: '/sales' },
-        { icon: Settings, label: 'Settings', path: '/settings' },
+        { icon: LayoutDashboard, label: t('dashboard'), path: '/' },
+        { icon: ShoppingCart, label: t('pos'), path: '/pos' },
+        { icon: Package, label: t('inventory'), path: '/inventory' },
+        { icon: Users, label: t('customers'), path: '/customers' },
+        { icon: History, label: t('salesHistory'), path: '/sales' },
+        { icon: Settings, label: t('settings'), path: '/settings' },
     ];
 
+    // Determine Background Image
+    const getBackgroundImage = (path) => {
+        switch (path) {
+            case '/': return dashboardBg;
+            case '/pos': return posBg;
+            case '/inventory': return inventoryBg;
+            case '/customers': return customersBg;
+            case '/sales': return salesBg;
+            case '/settings': return settingsBg;
+            default: return dashboardBg;
+        }
+    };
+
+    const currentBg = getBackgroundImage(location.pathname);
+
     return (
-        <div className="flex h-screen bg-[var(--bg-main)] overflow-hidden">
+        <div className="flex h-screen bg-[var(--bg-main)] overflow-hidden transition-all duration-500"
+            style={{
+                backgroundImage: `url(${currentBg})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundBlendMode: 'overlay'
+            }}>
+            {/* Overlay for readability */}
+            <div className="absolute inset-0 bg-white/80 backdrop-blur-[2px] z-0 pointer-events-none"></div>
+
             {/* Sidebar */}
-            <aside className="w-64 glass border-r border-white/20 flex flex-col z-20">
+            <aside className="w-64 glass border-r border-white/20 flex flex-col z-20 shadow-xl relative">
                 <div className="p-6 flex items-center gap-3">
-                    <div className="w-8 h-8 bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-secondary)] rounded-lg shadow-lg"></div>
-                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)]">
-                        Pasal POS
+                    <div className="w-8 h-8 bg-gradient-to-tr from-[var(--color-primary)] to-[var(--color-secondary)] rounded-lg shadow-lg flex items-center justify-center text-white font-bold">
+                        {storeName.charAt(0)}
+                    </div>
+                    <h1 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-secondary)] truncate">
+                        {storeName}
                     </h1>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 mt-4">
+                <nav className="flex-1 px-4 mt-4 flex flex-col gap-2">
                     {navItems.map((item) => {
                         const isActive = location.pathname === item.path;
                         return (
@@ -53,7 +90,7 @@ const Layout = ({ children }) => {
                     <div className="glass-panel p-4 rounded-xl">
                         <div className="flex items-center gap-3 mb-2">
                             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                            <span className="text-xs font-semibold text-green-600">System Online</span>
+                            <span className="text-xs font-semibold text-green-600">{t('systemOnline')}</span>
                         </div>
                         <p className="text-xs text-[var(--text-muted)]">Sync enabled • v1.0.0</p>
                     </div>
@@ -61,16 +98,25 @@ const Layout = ({ children }) => {
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 flex flex-col relative overflow-hidden">
+            <main className="flex-1 flex flex-col relative overflow-hidden z-10">
                 {/* Header */}
                 <header className="h-16 glass border-b border-white/20 flex items-center justify-between px-8 z-10">
                     <h2 className="text-lg font-semibold text-[var(--text-main)]">
                         {navItems.find(i => i.path === location.pathname)?.label || 'Overview'}
                     </h2>
                     <div className="flex items-center gap-4">
+                        {/* Language Toggle */}
+                        <button
+                            onClick={toggleLanguage}
+                            className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/50 border border-white/30 hover:bg-white transition-all shadow-sm"
+                        >
+                            <span className="text-xl">{language === 'en' ? '🇺🇸' : '🇳🇵'}</span>
+                            <span className="text-sm font-medium text-[var(--text-main)]">{language === 'en' ? 'ENG' : 'NEP'}</span>
+                        </button>
+
                         <div className="text-right hidden md:block">
                             <p className="text-sm font-bold text-[var(--text-main)]">{ownerName}</p>
-                            <p className="text-xs text-[var(--text-muted)]">Admin</p>
+                            <p className="text-xs text-[var(--text-muted)]">{t('admin')}</p>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 border-2 border-white shadow-md"></div>
                     </div>
@@ -78,12 +124,6 @@ const Layout = ({ children }) => {
 
                 {/* Page Content */}
                 <div className="flex-1 overflow-auto p-8 relative">
-                    {/* Background Blobs */}
-                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-                        <div className="absolute top-[-10%] left-[-5%] w-96 h-96 bg-purple-300/30 rounded-full blur-3xl"></div>
-                        <div className="absolute bottom-[-10%] right-[-5%] w-96 h-96 bg-blue-300/30 rounded-full blur-3xl"></div>
-                    </div>
-
                     <div className="animate-fade-in">
                         {children}
                     </div>
