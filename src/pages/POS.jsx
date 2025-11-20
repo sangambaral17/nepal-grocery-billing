@@ -13,6 +13,7 @@ const POS = () => {
     const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState('cash');
     const [discount, setDiscount] = useState(0);
+    const [vatSettings, setVatSettings] = useState({ vatEnabled: false, taxRate: 13 });
     const searchInputRef = useRef(null);
 
     const products = useLiveQuery(
@@ -22,9 +23,22 @@ const POS = () => {
         [searchQuery]
     );
 
-    // Focus search on load
+    // Focus search on load and load VAT settings
     useEffect(() => {
         if (searchInputRef.current) searchInputRef.current.focus();
+
+        // Load VAT settings from database
+        const loadSettings = async () => {
+            const storedSettings = await db.settings.toArray();
+            if (storedSettings.length > 0) {
+                const settingsMap = storedSettings.reduce((acc, curr) => ({ ...acc, [curr.key]: curr.value }), {});
+                setVatSettings({
+                    vatEnabled: settingsMap.vatEnabled === true || settingsMap.vatEnabled === 'true',
+                    taxRate: parseFloat(settingsMap.taxRate) || 13
+                });
+            }
+        };
+        loadSettings();
     }, []);
 
     const addToCart = (product) => {
@@ -54,8 +68,9 @@ const POS = () => {
     };
 
     const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
-    const taxRate = 0.13; // 13% VAT
-    const tax = subtotal * taxRate;
+    // Dynamic VAT calculation based on settings
+    const taxRate = vatSettings.vatEnabled ? (vatSettings.taxRate / 100) : 0;
+    const tax = vatSettings.vatEnabled ? (subtotal * taxRate) : 0;
     const total = subtotal + tax - discount;
 
     const handleCheckout = async () => {
@@ -176,10 +191,12 @@ const POS = () => {
                             <span>Subtotal</span>
                             <span>Rs. {subtotal.toFixed(2)}</span>
                         </div>
-                        <div className="flex justify-between text-[var(--text-muted)]">
-                            <span>VAT (13%)</span>
-                            <span>Rs. {tax.toFixed(2)}</span>
-                        </div>
+                        {vatSettings.vatEnabled && (
+                            <div className="flex justify-between text-[var(--text-muted)]">
+                                <span>VAT ({vatSettings.taxRate}%)</span>
+                                <span>Rs. {tax.toFixed(2)}</span>
+                            </div>
+                        )}
                         <div className="flex justify-between text-[var(--text-muted)]">
                             <span>Discount</span>
                             <span className="text-red-500">- Rs. {discount.toFixed(2)}</span>

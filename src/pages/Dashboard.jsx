@@ -64,13 +64,13 @@ const Dashboard = () => {
             {/* Welcome Banner */}
             <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1000&auto=format&fit=crop')] opacity-20 bg-cover bg-center mix-blend-overlay"></div>
-                <div className="relative p-8 md:p-10">
-                    <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome Back, {ownerName}! 👋</h1>
-                    <p className="text-indigo-100 text-lg max-w-xl">Here's what's happening in your store today. You have {stats.todaySales > 0 ? 'made some great sales!' : 'no sales yet. Let\'s get started!'}</p>
+                <div className="relative p-6 md:p-10">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2 text-shadow-md">Welcome Back, {ownerName}! 👋</h1>
+                    <p className="text-indigo-100 text-base md:text-lg max-w-xl">Here's what's happening in your store today. You have {stats.todaySales > 0 ? 'made some great sales!' : 'no sales yet. Let\'s get started!'}</p>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                 <StatCard
                     title="Today's Sales"
                     value={`Rs. ${stats.todaySales.toLocaleString()}`}
@@ -119,7 +119,7 @@ const Dashboard = () => {
 
                 <Card>
                     <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <button
                             onClick={() => navigate('/pos')}
                             className="p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] text-left group"
