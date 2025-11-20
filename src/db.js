@@ -14,14 +14,18 @@ export const seedDatabase = async () => {
   const isSeeded = localStorage.getItem('db_seeded');
   if (isSeeded) return;
 
-  const count = await db.products.count();
-  if (count === 0) {
-    await db.products.bulkAdd([
-      { name: 'Wai Wai Noodles', barcode: '1001', category: 'Snacks', price: 20, costPrice: 18, stock: 100 },
-      { name: 'Coca Cola 500ml', barcode: '1002', category: 'Drinks', price: 60, costPrice: 50, stock: 50 },
-      { name: 'Rice (Sona Mansuli) 25kg', barcode: '1003', category: 'Grains', price: 1800, costPrice: 1600, stock: 20 },
-      { name: 'Mustard Oil 1L', barcode: '1004', category: 'Essentials', price: 250, costPrice: 220, stock: 40 },
-    ]);
+  // Double check if data actually exists to prevent race conditions
+  const existingCount = await db.products.count();
+  if (existingCount > 0) {
     localStorage.setItem('db_seeded', 'true');
+    return;
   }
+
+  await db.products.bulkAdd([
+    { name: 'Wai Wai Noodles', barcode: '1001', category: 'Snacks', price: 20, costPrice: 18, stock: 100 },
+    { name: 'Coca Cola 500ml', barcode: '1002', category: 'Drinks', price: 60, costPrice: 50, stock: 50 },
+    { name: 'Rice (Sona Mansuli) 25kg', barcode: '1003', category: 'Grains', price: 1800, costPrice: 1600, stock: 20 },
+    { name: 'Mustard Oil 1L', barcode: '1004', category: 'Essentials', price: 250, costPrice: 220, stock: 40 },
+  ]);
+  localStorage.setItem('db_seeded', 'true');
 };

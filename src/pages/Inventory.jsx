@@ -1,14 +1,13 @@
 import React, { useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { Plus, Search, Edit2, Trash2, Package, AlertCircle, TrendingUp, DollarSign } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Package, AlertCircle, DollarSign, X, Save, ChevronDown, ChevronUp } from 'lucide-react';
 import { db } from '../db';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
-import Modal from '../components/ui/Modal';
 
 const Inventory = () => {
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isFormOpen, setIsFormOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [editingProduct, setEditingProduct] = useState(null);
     const [formData, setFormData] = useState({
@@ -47,30 +46,28 @@ const Inventory = () => {
             await db.products.add(productData);
         }
 
-        closeModal();
+        resetForm();
     };
 
-    const openModal = (product = null) => {
-        if (product) {
-            setEditingProduct(product);
-            setFormData({
-                name: product.name,
-                barcode: product.barcode,
-                category: product.category,
-                price: product.price,
-                costPrice: product.costPrice,
-                stock: product.stock
-            });
-        } else {
-            setEditingProduct(null);
-            setFormData({ name: '', barcode: '', category: '', price: '', costPrice: '', stock: '' });
-        }
-        setIsModalOpen(true);
+    const editProduct = (product) => {
+        setEditingProduct(product);
+        setFormData({
+            name: product.name,
+            barcode: product.barcode,
+            category: product.category,
+            price: product.price,
+            costPrice: product.costPrice,
+            stock: product.stock
+        });
+        setIsFormOpen(true);
+        // Scroll to top smoothly
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    const closeModal = () => {
-        setIsModalOpen(false);
+    const resetForm = () => {
+        setIsFormOpen(false);
         setEditingProduct(null);
+        setFormData({ name: '', barcode: '', category: '', price: '', costPrice: '', stock: '' });
     };
 
     const handleDelete = async (id) => {
@@ -87,9 +84,96 @@ const Inventory = () => {
                     <h1 className="text-3xl font-bold text-[var(--text-main)]">Inventory</h1>
                     <p className="text-[var(--text-muted)] mt-1">Manage your store's products and stock levels</p>
                 </div>
-                <Button onClick={() => openModal()} icon={Plus} className="shadow-lg shadow-indigo-200">
-                    <Plus size={20} className="mr-2" /> Add Product
+                <Button
+                    onClick={() => setIsFormOpen(!isFormOpen)}
+                    icon={isFormOpen ? ChevronUp : Plus}
+                    className={`shadow-lg transition-all ${isFormOpen ? 'bg-gray-800 hover:bg-gray-900' : 'shadow-indigo-200'}`}
+                >
+                    {isFormOpen ? 'Close Form' : 'Add Product'}
                 </Button>
+            </div>
+
+            {/* Inline Add/Edit Form */}
+            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isFormOpen ? 'max-h-[800px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                <Card className="border-2 border-indigo-100 bg-white/80 backdrop-blur-xl shadow-xl">
+                    <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+                        <h3 className="text-lg font-bold text-indigo-900 flex items-center gap-2">
+                            {editingProduct ? <Edit2 size={20} /> : <Plus size={20} />}
+                            {editingProduct ? 'Edit Product Details' : 'Add New Product'}
+                        </h3>
+                        <button onClick={resetForm} className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100">
+                            <X size={20} />
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <Input
+                                label="Product Name"
+                                value={formData.name}
+                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                required
+                                placeholder="e.g. Wai Wai Noodles"
+                                className="bg-white"
+                            />
+                            <div className="grid grid-cols-2 gap-4">
+                                <Input
+                                    label="Barcode"
+                                    value={formData.barcode}
+                                    onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
+                                    required
+                                    placeholder="Scan..."
+                                    className="bg-white"
+                                />
+                                <Input
+                                    label="Category"
+                                    value={formData.category}
+                                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                    required
+                                    placeholder="e.g. Snacks"
+                                    className="bg-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <Input
+                                label="Selling Price (Rs)"
+                                type="number"
+                                value={formData.price}
+                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                required
+                                placeholder="0.00"
+                                className="bg-white"
+                            />
+                            <Input
+                                label="Cost Price (Rs)"
+                                type="number"
+                                value={formData.costPrice}
+                                onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
+                                required
+                                placeholder="0.00"
+                                className="bg-white"
+                            />
+                            <Input
+                                label="Initial Stock"
+                                type="number"
+                                value={formData.stock}
+                                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
+                                required
+                                placeholder="0"
+                                className="bg-white"
+                            />
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <Button type="button" variant="ghost" onClick={resetForm}>Cancel</Button>
+                            <Button type="submit" icon={Save} className="px-8">
+                                {editingProduct ? 'Update Product' : 'Save Product'}
+                            </Button>
+                        </div>
+                    </form>
+                </Card>
             </div>
 
             {/* Stats Cards */}
@@ -142,9 +226,6 @@ const Inventory = () => {
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                         />
-                    </div>
-                    <div className="flex gap-2">
-                        {/* Filter buttons could go here */}
                     </div>
                 </div>
 
@@ -206,7 +287,7 @@ const Inventory = () => {
                                     </td>
                                     <td className="p-4 pr-6 text-right">
                                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <Button variant="ghost" size="icon" onClick={() => openModal(product)} className="hover:bg-blue-50 hover:text-blue-600">
+                                            <Button variant="ghost" size="icon" onClick={() => editProduct(product)} className="hover:bg-blue-50 hover:text-blue-600">
                                                 <Edit2 size={16} />
                                             </Button>
                                             <Button variant="ghost" size="icon" onClick={() => handleDelete(product.id)} className="hover:bg-red-50 hover:text-red-600">
@@ -225,7 +306,7 @@ const Inventory = () => {
                                             </div>
                                             <h3 className="text-lg font-medium text-gray-900">No products found</h3>
                                             <p className="mb-6 max-w-sm mx-auto">Get started by adding your first product to the inventory.</p>
-                                            <Button onClick={() => openModal()} icon={Plus}>
+                                            <Button onClick={() => setIsFormOpen(true)} icon={Plus}>
                                                 <Plus size={20} className="mr-2" /> Add Product
                                             </Button>
                                         </div>
@@ -236,68 +317,6 @@ const Inventory = () => {
                     </table>
                 </div>
             </Card>
-
-            <Modal
-                isOpen={isModalOpen}
-                onClose={closeModal}
-                title={editingProduct ? 'Edit Product' : 'Add New Product'}
-            >
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <Input
-                        label="Product Name"
-                        value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        required
-                        placeholder="e.g. Wai Wai Noodles"
-                    />
-                    <div className="grid grid-cols-2 gap-4">
-                        <Input
-                            label="Barcode"
-                            value={formData.barcode}
-                            onChange={(e) => setFormData({ ...formData, barcode: e.target.value })}
-                            required
-                            placeholder="Scan or type..."
-                        />
-                        <Input
-                            label="Category"
-                            value={formData.category}
-                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                            required
-                            placeholder="e.g. Snacks"
-                        />
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                        <Input
-                            label="Selling Price (Rs)"
-                            type="number"
-                            value={formData.price}
-                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                            required
-                            placeholder="0.00"
-                        />
-                        <Input
-                            label="Cost Price (Rs)"
-                            type="number"
-                            value={formData.costPrice}
-                            onChange={(e) => setFormData({ ...formData, costPrice: e.target.value })}
-                            required
-                            placeholder="0.00"
-                        />
-                    </div>
-                    <Input
-                        label="Initial Stock"
-                        type="number"
-                        value={formData.stock}
-                        onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                        required
-                        placeholder="0"
-                    />
-                    <div className="flex justify-end gap-3 mt-6">
-                        <Button type="button" variant="ghost" onClick={closeModal}>Cancel</Button>
-                        <Button type="submit">{editingProduct ? 'Update Product' : 'Add Product'}</Button>
-                    </div>
-                </form>
-            </Modal>
         </div>
     );
 };
