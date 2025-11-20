@@ -98,6 +98,13 @@ const Settings = () => {
                             required
                         />
                     </div>
+                    <Input
+                        label="Owner Name (Displayed as Admin)"
+                        name="ownerName"
+                        value={settings.ownerName || ''}
+                        onChange={handleChange}
+                        placeholder="e.g. Sangam Baral"
+                    />
 
                     <div className="pt-4">
                         <Button type="submit" icon={Save} className="w-full">

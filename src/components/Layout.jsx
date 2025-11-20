@@ -1,9 +1,14 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { LayoutDashboard, ShoppingCart, Package, Settings, History, Users } from 'lucide-react';
+import { db } from '../db';
 
 const Layout = ({ children }) => {
     const location = useLocation();
+
+    const settings = useLiveQuery(() => db.settings.toArray());
+    const ownerName = settings?.find(s => s.key === 'ownerName')?.value || 'Store Admin';
 
     const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
@@ -64,7 +69,7 @@ const Layout = ({ children }) => {
                     </h2>
                     <div className="flex items-center gap-4">
                         <div className="text-right hidden md:block">
-                            <p className="text-sm font-bold text-[var(--text-main)]">Sangam Baral</p>
+                            <p className="text-sm font-bold text-[var(--text-main)]">{ownerName}</p>
                             <p className="text-xs text-[var(--text-muted)]">Admin</p>
                         </div>
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-gray-200 to-gray-300 border-2 border-white shadow-md"></div>
