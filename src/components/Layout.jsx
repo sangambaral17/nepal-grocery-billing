@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, ShoppingCart, Package, Settings, History, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Settings, History, Users } from 'lucide-react';
 
 const Layout = ({ children }) => {
     const location = useLocation();
@@ -9,6 +9,7 @@ const Layout = ({ children }) => {
         { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
         { icon: ShoppingCart, label: 'POS (Billing)', path: '/pos' },
         { icon: Package, label: 'Inventory', path: '/inventory' },
+        { icon: Users, label: 'Customers', path: '/customers' },
         { icon: History, label: 'Sales History', path: '/sales' },
         { icon: Settings, label: 'Settings', path: '/settings' },
     ];
@@ -32,8 +33,8 @@ const Layout = ({ children }) => {
                                 key={item.path}
                                 to={item.path}
                                 className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive
-                                        ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-indigo-500/30'
-                                        : 'text-[var(--text-muted)] hover:bg-white/50 hover:text-[var(--color-primary)]'
+                                    ? 'bg-[var(--color-primary)] text-white shadow-lg shadow-indigo-500/30'
+                                    : 'text-[var(--text-muted)] hover:bg-white/50 hover:text-[var(--color-primary)]'
                                     }`}
                             >
                                 <item.icon size={20} className={isActive ? 'text-white' : 'group-hover:scale-110 transition-transform'} />

@@ -11,6 +11,9 @@ db.version(1).stores({
 
 // Helper to seed initial data if needed
 export const seedDatabase = async () => {
+  const isSeeded = localStorage.getItem('db_seeded');
+  if (isSeeded) return;
+
   const count = await db.products.count();
   if (count === 0) {
     await db.products.bulkAdd([
@@ -19,5 +22,6 @@ export const seedDatabase = async () => {
       { name: 'Rice (Sona Mansuli) 25kg', barcode: '1003', category: 'Grains', price: 1800, costPrice: 1600, stock: 20 },
       { name: 'Mustard Oil 1L', barcode: '1004', category: 'Essentials', price: 250, costPrice: 220, stock: 40 },
     ]);
+    localStorage.setItem('db_seeded', 'true');
   }
 };

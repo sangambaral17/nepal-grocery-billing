@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { DollarSign, ShoppingBag, TrendingUp, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { DollarSign, ShoppingBag, TrendingUp, AlertTriangle, Plus } from 'lucide-react';
 import Card from '../components/ui/Card';
 import { db, seedDatabase } from '../db';
 import { useLiveQuery } from 'dexie-react-hooks';
 
 const StatCard = ({ title, value, icon: Icon, color, trend }) => (
-    <Card className="relative overflow-hidden">
-        <div className={`absolute top-0 right-0 p-4 opacity-10`}>
+    <Card className="relative overflow-hidden group hover:shadow-lg transition-all duration-300 border-l-4 border-l-transparent hover:border-l-[var(--color-primary)]">
+        <div className={`absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity`}>
             <Icon size={64} className={color} />
         </div>
         <div className="flex items-center gap-4 mb-4">
@@ -23,6 +24,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend }) => (
 );
 
 const Dashboard = () => {
+    const navigate = useNavigate();
     const [stats, setStats] = useState({
         todaySales: 0,
         totalProducts: 0,
@@ -56,9 +58,13 @@ const Dashboard = () => {
 
     return (
         <div className="space-y-8">
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-[var(--text-main)]">Dashboard Overview</h1>
-                <div className="text-sm text-[var(--text-muted)]">{new Date().toLocaleDateString('en-NP', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            {/* Welcome Banner */}
+            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xl">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=1000&auto=format&fit=crop')] opacity-20 bg-cover bg-center mix-blend-overlay"></div>
+                <div className="relative p-8 md:p-10">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-2">Welcome Back, Sangam! 👋</h1>
+                    <p className="text-indigo-100 text-lg max-w-xl">Here's what's happening in your store today. You have {stats.todaySales > 0 ? 'made some great sales!' : 'no sales yet. Let\'s get started!'}</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -85,16 +91,19 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
-                    <h3 className="text-lg font-semibold mb-4">Recent Sales</h3>
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-lg font-semibold">Recent Sales</h3>
+                        <button onClick={() => navigate('/sales')} className="text-sm text-indigo-600 hover:underline">View All</button>
+                    </div>
                     <div className="space-y-4">
                         {sales?.slice(0, 5).reverse().map(sale => (
-                            <div key={sale.id} className="flex items-center justify-between p-3 hover:bg-white/50 rounded-lg transition-colors">
+                            <div key={sale.id} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition-colors border border-transparent hover:border-gray-100">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold">
                                         #{sale.id}
                                     </div>
                                     <div>
-                                        <p className="font-medium">Sale #{sale.id}</p>
+                                        <p className="font-medium text-[var(--text-main)]">Sale #{sale.id}</p>
                                         <p className="text-xs text-[var(--text-muted)]">{new Date(sale.date).toLocaleTimeString()}</p>
                                     </div>
                                 </div>
@@ -108,13 +117,23 @@ const Dashboard = () => {
                 <Card>
                     <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
                     <div className="grid grid-cols-2 gap-4">
-                        <button className="p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-105 text-left">
-                            <ShoppingBag size={24} className="mb-2" />
-                            <p className="font-bold">New Sale</p>
+                        <button
+                            onClick={() => navigate('/pos')}
+                            className="p-4 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] text-left group"
+                        >
+                            <div className="bg-white/20 w-10 h-10 rounded-lg flex items-center justify-center mb-3 group-hover:rotate-12 transition-transform">
+                                <ShoppingBag size={20} />
+                            </div>
+                            <p className="font-bold text-lg">New Sale</p>
                             <p className="text-xs opacity-80">Open POS Terminal</p>
                         </button>
-                        <button className="p-4 rounded-xl bg-white border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all text-left">
-                            <TrendingUp size={24} className="mb-2 text-indigo-600" />
+                        <button
+                            onClick={() => navigate('/inventory')}
+                            className="p-4 rounded-xl bg-white border border-gray-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all text-left group"
+                        >
+                            <div className="bg-indigo-100 text-indigo-600 w-10 h-10 rounded-lg flex items-center justify-center mb-3 group-hover:rotate-12 transition-transform">
+                                <Plus size={20} />
+                            </div>
                             <p className="font-bold text-[var(--text-main)]">Add Product</p>
                             <p className="text-xs text-[var(--text-muted)]">Update Inventory</p>
                         </button>

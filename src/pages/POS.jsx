@@ -105,22 +105,35 @@ const POS = () => {
 
                 <div className="flex-1 overflow-y-auto grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pb-4">
                     {products?.map(product => (
-                        <button
+                        <div
                             key={product.id}
                             onClick={() => addToCart(product)}
-                            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-all text-left flex flex-col h-full border border-transparent hover:border-indigo-200 group"
+                            className="bg-white p-3 rounded-xl shadow-sm border border-gray-100 cursor-pointer hover:shadow-md hover:border-[var(--color-primary)] transition-all group"
                         >
-                            <div className="flex-1">
-                                <h3 className="font-semibold text-[var(--text-main)] line-clamp-2 group-hover:text-[var(--color-primary)] transition-colors">{product.name}</h3>
-                                <p className="text-xs text-[var(--text-muted)] mt-1">#{product.barcode}</p>
+                            <div className="aspect-square rounded-lg bg-gray-100 mb-3 overflow-hidden relative">
+                                {/* Placeholder Image */}
+                                <img
+                                    src={`https://source.unsplash.com/random/200x200/?grocery,${product.category}`}
+                                    alt={product.name}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                    onError={(e) => {
+                                        e.target.src = 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=200&auto=format&fit=crop';
+                                    }}
+                                />
+                                <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-bold text-[var(--color-primary)] shadow-sm">
+                                    Rs. {product.price}
+                                </div>
                             </div>
-                            <div className="mt-3 flex items-end justify-between">
-                                <span className="font-bold text-lg text-emerald-600">Rs. {product.price}</span>
-                                <span className={`text-xs px-2 py-1 rounded-full ${product.stock < 5 ? 'bg-red-100 text-red-600' : 'bg-gray-100 text-gray-600'}`}>
+                            <h3 className="font-medium text-gray-800 truncate">{product.name}</h3>
+                            <div className="flex items-center justify-between mt-2">
+                                <span className={`text-xs px-2 py-1 rounded-full ${product.stock > 10 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
                                     {product.stock} left
                                 </span>
+                                <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-colors">
+                                    <Plus size={16} />
+                                </div>
                             </div>
-                        </button>
+                        </div>
                     ))}
                 </div>
             </div>
